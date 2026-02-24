@@ -87,11 +87,6 @@ cd free-ai-image-generator
 python -m http.server 8000
 
 # Open http://localhost:8000/index.html in your browser
-```
-
-### Option 3: Just Open the File
-
-Simply open `index.html` directly in any modern browser — it works immediately!
 
 ---
 
@@ -107,19 +102,7 @@ Your Browser → Puter.js SDK → AI Models (DALL-E, Gemini, FLUX)
 
 **First time?** A small authentication popup appears and closes automatically in ~1 second. After that, you get unlimited generations — forever.
 
----
 
-## 🆚 Free AI Image Generator vs Paid Alternatives
-
-| Feature | AI Image Studio | DALL-E (ChatGPT) | Midjourney | Other Free Tools |
-|---------|:-:|:-:|:-:|:-:|
-| **Price** | Free ✅ | $20/mo ❌ | $10/mo ❌ | Free ✅ |
-| **Daily Limits** | Unlimited ✅ | ~50/day ❌ | ~200/mo ❌ | 2-5/day ❌ |
-| **Signup** | None ✅ | Required ❌ | Required ❌ | Required ❌ |
-| **AI Models** | 8 models ✅ | 1 model ❌ | 1 model ❌ | 1 model ❌ |
-| **Style Presets** | 9 styles ✅ | None ❌ | Limited ⚠️ | None ❌ |
-| **Instant Download** | Yes ✅ | Extra steps ⚠️ | Extra steps ⚠️ | Watermarks ❌ |
-| **Open Source** | Yes ✅ | No ❌ | No ❌ | Rarely ⚠️ |
 
 ---
 
@@ -196,3 +179,4 @@ If you find this free AI image generator useful, **please give it a star** ⭐ �
 <p align="center">
   <b>Built with ❤️ using <a href="https://puter.com">Puter.js</a> — Making AI accessible to everyone</b>
 </p>
+
