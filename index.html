@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Studio — Free AI Image Generator</title>
+    <meta name="description"
+        content="Generate stunning AI images for free. No signup, no API keys, no limits. Powered by DALL-E, GPT Image, Gemini, and Flux.">
+    <script src="https://js.puter.com/v2/"></script>
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="AI Image Studio — Free AI Image Generator">
+    <meta property="og:description"
+        content="Generate stunning AI images for free with 8 AI models. No signup, no API keys, unlimited generations.">
+    <meta property="og:url" content="https://github.com/hassanmsthf11/free-ai-image-generator">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI Image Studio — Free AI Image Generator">
+    <meta name="twitter:description"
+        content="Generate stunning AI images for free with 8 AI models. No signup, no API keys, unlimited.">
+    <meta name="keywords"
+        content="free ai image generator, ai image generator no signup, dall-e free, free image generation, ai art generator, text to image free, ai image creator, free dall-e alternative">
+
+    <!-- JSON-LD Structured Data (SoftwareApplication) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "AI Image Studio",
+        "description": "Free AI image generator with 8 models including DALL-E 3, GPT Image, Gemini, and FLUX. No signup, no API keys, unlimited generations.",
+        "url": "https://github.com/hassanmsthf11/free-ai-image-generator",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Person",
+            "name": "hassanmsthf11",
+            "url": "https://github.com/hassanmsthf11"
+        },
+        "license": "https://opensource.org/licenses/MIT",
+        "isAccessibleForFree": true,
+        "featureList": [
+            "8 AI image generation models",
+            "9 style presets",
+            "4 aspect ratios",
+            "Instant image download",
+            "No signup required",
+            "No API keys needed",
+            "Unlimited generations",
+            "Browser-based application"
+        ]
+    }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ─── Design Tokens ──────────────────────────────────────────── */
+        :root {
+            --bg: #090b10;
+            --surface: #12151e;
+            --surface-2: #181c28;
+            --surface-3: #1e2333;
+            --border: #262d40;
+            --border-focus: #6d5bf7;
+            --text: #eaecf0;
+            --text-secondary: #8b92a5;
+            --text-muted: #5c627a;
+            --accent: #6d5bf7;
+            --accent-hover: #7f6ff8;
+            --accent-glow: rgba(109, 91, 247, 0.25);
+            --accent-2: #f75bf7;
+            --gradient: linear-gradient(135deg, #6d5bf7 0%, #f75bf7 100%);
+            --gradient-subtle: linear-gradient(135deg, rgba(109, 91, 247, 0.15) 0%, rgba(247, 91, 247, 0.08) 100%);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --error: #f87171;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-lg: 16px;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        /* ─── Reset & Base ───────────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: white;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ─── Layout ─────────────────────────────────────────────────── */
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ─── Sidebar ────────────────────────────────────────────────── */
+        .sidebar {
+            width: 320px;
+            min-width: 320px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 46px;
+            margin-top: -2px;
+        }
+
+        /* ─── Controls Panel ─────────────────────────────────────────── */
+        .controls {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .prompt-area {
+            width: 100%;
+            min-height: 100px;
+            max-height: 200px;
+            resize: vertical;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1.5;
+            transition: border-color 0.2s;
+        }
+
+        .prompt-area:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .prompt-area::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* ─── Select / Dropdown ───────────────────────────────────────── */
+        .custom-select {
+            position: relative;
+        }
+
+        .custom-select select {
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 36px 10px 12px;
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 13px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .custom-select select:focus {
+            outline: none;
+            border-color: var(--border-focus);
+        }
+
+        .custom-select::after {
+            content: '▾';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        .custom-select option {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        /* ─── Style Presets Grid ──────────────────────────────────────── */
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .preset-btn {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 6px;
+            color: var(--text-secondary);
+            font-family: var(--font);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+            background: var(--surface-3);
+        }
+
+        .preset-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            color: #c4b5fd;
+        }
+
+        .preset-btn .preset-emoji {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+
+        /* ─── Ratio Buttons ──────────────────────────────────────────── */
+        .ratio-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ratio-btn {
+            flex: 1;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            color: var(--text-secondary);
+            font-family: var(--font);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .ratio-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .ratio-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+            color: #c4b5fd;
+        }
+
+        /* ─── Generate Button ────────────────────────────────────────── */
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient);
+            border: none;
+            border-radius: var(--radius);
+            color: white;
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .generate-btn:hover {
+            opacity: 0.92;
+        }
+
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-btn .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .generate-btn.loading .spinner {
+            display: block;
+        }
+
+        .generate-btn.loading .btn-text {
+            display: none;
+        }
+
+        .generate-btn.loading .btn-loading {
+            display: inline;
+        }
+
+        .btn-loading {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ─── Sidebar Footer ─────────────────────────────────────────── */
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .sidebar-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .sidebar-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ─── Main Content ───────────────────────────────────────────── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ─── Top Bar ────────────────────────────────────────────────── */
+        .topbar {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .tab-btns {
+            display: flex;
+            background: var(--surface-2);
+            border-radius: var(--radius-sm);
+            padding: 3px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 7px 16px;
+            color: var(--text-muted);
+            font-family: var(--font);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--surface-3);
+            color: var(--text);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-secondary);
+        }
+
+        .img-counter {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .img-counter strong {
+            color: var(--text-secondary);
+        }
+
+        .clear-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 6px 14px;
+            color: var(--text-muted);
+            font-family: var(--font);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        /* ─── Canvas Area ────────────────────────────────────────────── */
+        .canvas-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        /* ─── Welcome Screen ─────────────────────────────────────────── */
+        .welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-subtle);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 24px;
+        }
+
+        .welcome h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        .welcome-features {
+            display: flex;
+            gap: 24px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .welcome-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .welcome-feature span {
+            font-size: 16px;
+        }
+
+        /* ─── Image Gallery Grid ─────────────────────────────────────── */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .gallery-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: border-color 0.3s, transform 0.2s;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .gallery-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gallery-img-wrap {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--surface-2);
+        }
+
+        .gallery-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover .gallery-img-wrap img {
+            transform: scale(1.03);
+        }
+
+        .gallery-img-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: flex-end;
+            padding: 12px;
+        }
+
+        .gallery-item:hover .gallery-img-overlay {
+            opacity: 1;
+        }
+
+        .overlay-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .overlay-btn {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-family: var(--font);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .overlay-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .gallery-meta {
+            padding: 12px 16px;
+        }
+
+        .gallery-prompt {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .gallery-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .gallery-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--surface-3);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .gallery-tag.model {
+            color: #c4b5fd;
+            background: rgba(109, 91, 247, 0.15);
+        }
+
+        /* ─── Loading State ──────────────────────────────────────────── */
+        .generating-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .generating-placeholder {
+            aspect-ratio: 1;
+            background: var(--gradient-subtle);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .generating-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .generating-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .generating-meta {
+            padding: 12px 16px;
+        }
+
+        .generating-prompt {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ─── Lightbox ───────────────────────────────────────────────── */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(16px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            object-fit: contain;
+        }
+
+        .lightbox-info {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 12px 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .lightbox-info-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            max-width: 400px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ─── Toast ──────────────────────────────────────────────────── */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 20px;
+            font-size: 13px;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+
+        .toast.error {
+            border-color: var(--error);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* ─── Responsive ─────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .menu-btn {
+                display: flex;
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 99;
+                display: none;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="app">
+        <!-- ─── Sidebar ──────────────────────────────────────────── -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">🎨</div>
+                    <h1>AI Image Studio</h1>
+                </div>
+                <div class="logo-sub">Free, unlimited AI image generation</div>
+            </div>
+
+            <div class="controls">
+                <!-- Prompt -->
+                <div class="control-group">
+                    <label>✏️ Prompt</label>
+                    <textarea class="prompt-area" id="promptInput"
+                        placeholder="Describe the image you want to create...&#10;&#10;e.g. A majestic dragon flying over a cyberpunk city at sunset, volumetric lighting, ultra detailed"
+                        rows="4"></textarea>
+                </div>
+
+                <!-- Model -->
+                <div class="control-group">
+                    <label>🤖 AI Model</label>
+                    <div class="custom-select">
+                        <select id="modelSelect">
+                            <optgroup label="OpenAI">
+                                <option value="dall-e-3" data-provider="openai-image-generation">DALL-E 3</option>
+                                <option value="gpt-image-1-mini" data-provider="openai-image-generation" selected>GPT
+                                    Image Mini (Fast)</option>
+                                <option value="gpt-image-1" data-provider="openai-image-generation">GPT Image 1</option>
+                                <option value="gpt-image-1.5" data-provider="openai-image-generation">GPT Image 1.5
+                                    (Best)</option>
+                            </optgroup>
+                            <optgroup label="Google">
+                                <option value="gemini-2.5-flash-image-preview" data-provider="gemini">Gemini 2.5 Flash
+                                </option>
+                                <option value="gemini-3-pro-image-preview" data-provider="gemini">Gemini 3 Pro</option>
+                            </optgroup>
+
+
+                            <optgroup label="Together AI">
+                                <option value="black-forest-labs/FLUX.1-schnell" data-provider="together">FLUX.1 Schnell
+                                    (Fast)</option>
+                                <option value="black-forest-labs/FLUX.1.1-pro" data-provider="together">FLUX 1.1 Pro
+                                </option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Style Presets -->
+                <div class="control-group">
+                    <label>🎭 Style Preset</label>
+                    <div class="presets-grid">
+                        <button class="preset-btn active" data-preset="none" onclick="selectPreset(this)">
+                            <span class="preset-emoji">✨</span>None
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="photorealistic, ultra detailed, 8k resolution, professional photography"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">📷</span>Photo
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="anime style, manga illustration, vibrant colors, Studio Ghibli inspired"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">🎌</span>Anime
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="digital painting, concept art, fantasy illustration, highly detailed"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">🖌️</span>Digital Art
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="3D render, octane render, cinema 4D, volumetric lighting, ultra realistic"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">🧊</span>3D Render
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="watercolor painting, soft brushstrokes, artistic, traditional art"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">🎨</span>Watercolor
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="oil painting, classical art style, museum quality, masterpiece"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">🖼️</span>Oil Paint
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="pixel art, retro game style, 16-bit, nostalgic, vibrant pixels"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">👾</span>Pixel Art
+                        </button>
+                        <button class="preset-btn"
+                            data-preset="minimal line art, clean vector illustration, flat design, modern"
+                            onclick="selectPreset(this)">
+                            <span class="preset-emoji">✏️</span>Line Art
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aspect Ratio -->
+                <div class="control-group">
+                    <label>📐 Aspect Ratio</label>
+                    <div class="ratio-row">
+                        <button class="ratio-btn active" data-w="1024" data-h="1024"
+                            onclick="selectRatio(this)">1:1</button>
+                        <button class="ratio-btn" data-w="1536" data-h="1024" onclick="selectRatio(this)">3:2</button>
+                        <button class="ratio-btn" data-w="1024" data-h="1536" onclick="selectRatio(this)">2:3</button>
+                        <button class="ratio-btn" data-w="1792" data-h="1024" onclick="selectRatio(this)">16:9</button>
+                    </div>
+                </div>
+
+                <!-- Generate -->
+                <button class="generate-btn" id="generateBtn" onclick="generate()">
+                    <div class="spinner"></div>
+                    <span class="btn-text">✨ Generate Image</span>
+                    <span class="btn-loading">Generating...</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                Powered by <a href="https://puter.com" target="_blank">Puter.js</a> · 100% Free · No API Keys
+            </div>
+        </aside>
+
+        <!-- ─── Main Content ─────────────────────────────────────── -->
+        <main class="main">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                    <div class="tab-btns">
+                        <button class="tab-btn active" onclick="switchTab('gallery', this)">🖼️ Gallery</button>
+                        <button class="tab-btn" onclick="switchTab('history', this)">📂 History</button>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span class="img-counter"><strong id="imgCount">0</strong> images</span>
+                    <button class="clear-btn" onclick="clearGallery()">🗑️ Clear All</button>
+                </div>
+            </div>
+
+            <div class="canvas-area" id="canvasArea">
+                <!-- Welcome state -->
+                <div class="welcome" id="welcomeScreen">
+                    <div class="welcome-icon">🖼️</div>
+                    <h2>Create Stunning AI Images</h2>
+                    <p>Type a prompt, pick a style, and hit Generate. Your images appear here — free, unlimited, and
+                        beautiful.</p>
+                    <div class="welcome-features">
+                        <div class="welcome-feature"><span>🆓</span> Completely Free</div>
+                        <div class="welcome-feature"><span>⚡</span> Multiple AI Models</div>
+                        <div class="welcome-feature"><span>💾</span> Download Instantly</div>
+                        <div class="welcome-feature"><span>🔒</span> No Signup Required</div>
+                    </div>
+                </div>
+
+                <!-- Gallery -->
+                <div class="gallery-grid" id="galleryGrid" style="display:none;"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        <img id="lightboxImg" src="" alt="Full preview">
+        <div class="lightbox-info">
+            <span class="lightbox-info-text" id="lightboxPrompt"></span>
+            <button class="overlay-btn" id="lightboxDownload" onclick="event.stopPropagation()">💾 Download</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ─── State ──────────────────────────────────────────────────
+        let gallery = JSON.parse(localStorage.getItem('ai_studio_gallery') || '[]');
+        let isGenerating = false;
+        let currentPreset = 'none';
+        let currentRatio = { w: 1024, h: 1024 };
+
+        // ─── Init ───────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGallery();
+            document.getElementById('promptInput').focus();
+
+            // Enter to generate
+            document.getElementById('promptInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    generate();
+                }
+            });
+        });
+
+        // ─── Style Presets ──────────────────────────────────────────
+        function selectPreset(btn) {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentPreset = btn.dataset.preset;
+        }
+
+        // ─── Aspect Ratio ───────────────────────────────────────────
+        function selectRatio(btn) {
+            document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentRatio = { w: parseInt(btn.dataset.w), h: parseInt(btn.dataset.h) };
+        }
+
+        // ─── Tabs ───────────────────────────────────────────────────
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // Both show gallery for now; history could filter by date
+            renderGallery();
+        }
+
+        // ─── Sidebar Toggle (mobile) ────────────────────────────────
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        // ─── Toast Notification ─────────────────────────────────────
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ─── Generate Image ─────────────────────────────────────────
+        async function generate() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) {
+                showToast('Please enter a prompt first.', 'error');
+                document.getElementById('promptInput').focus();
+                return;
+            }
+            if (isGenerating) return;
+
+            isGenerating = true;
+            const btn = document.getElementById('generateBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            // Build the full prompt with style
+            let fullPrompt = prompt;
+            if (currentPreset !== 'none') {
+                fullPrompt = prompt + ', ' + currentPreset;
+            }
+
+            // Get model and provider
+            const modelSelect = document.getElementById('modelSelect');
+            const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+            const model = modelSelect.value;
+            const provider = selectedOption.dataset.provider;
+
+            // Show loading card
+            showWelcomeOrGallery(true);
+            const loadingCard = createLoadingCard(prompt, model);
+            const grid = document.getElementById('galleryGrid');
+            grid.insertBefore(loadingCard, grid.firstChild);
+
+            try {
+                // Build options based on provider — each has different params per docs
+                const options = { model, provider };
+
+                if (provider === 'openai-image-generation') {
+                    // OpenAI supports ratio + quality
+                    // DALL-E 3 uses 'hd'/'standard', GPT models use 'high'/'medium'/'low'
+                    if (model === 'dall-e-3') {
+                        options.quality = 'hd';
+                    } else {
+                        options.quality = 'medium';
+                    }
+                    options.ratio = { w: currentRatio.w, h: currentRatio.h };
+                } else if (provider === 'gemini') {
+                    // Gemini supports ratio
+                    options.ratio = { w: currentRatio.w, h: currentRatio.h };
+                } else if (provider === 'xai') {
+                    // xAI/Grok — only prompt and model, no ratio support
+                } else if (provider === 'together') {
+                    // Together uses width/height instead of ratio
+                    options.width = currentRatio.w;
+                    options.height = currentRatio.h;
+                }
+
+                // Call puter API
+                const imageEl = await puter.ai.txt2img(fullPrompt, options);
+
+                // Extract the image src (data URL)
+                const imgSrc = imageEl.src;
+
+                // Save to gallery
+                const entry = {
+                    id: Date.now() + '_' + Math.random().toString(36).slice(2),
+                    src: imgSrc,
+                    prompt: prompt,
+                    fullPrompt: fullPrompt,
+                    model: model,
+                    provider: provider,
+                    ratio: `${currentRatio.w}x${currentRatio.h}`,
+                    preset: currentPreset === 'none' ? null : document.querySelector('.preset-btn.active')?.textContent?.trim(),
+                    timestamp: new Date().toISOString()
+                };
+
+                gallery.unshift(entry);
+                saveGallery();
+
+                // Replace loading card with real image
+                loadingCard.remove();
+                renderGallery();
+                showToast('Image generated!');
+
+            } catch (err) {
+                console.error('Generation failed:', err);
+                loadingCard.remove();
+                if (gallery.length === 0) showWelcomeOrGallery(false);
+                showToast('Generation failed: ' + (err.message || String(err)), 'error');
+            } finally {
+                isGenerating = false;
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // ─── Loading Card ───────────────────────────────────────────
+        function createLoadingCard(prompt, model) {
+            const card = document.createElement('div');
+            card.className = 'generating-card';
+            card.innerHTML = `
+                <div class="generating-placeholder">
+                    <div class="generating-spinner"></div>
+                    <div class="generating-text">Creating your masterpiece...</div>
+                </div>
+                <div class="generating-meta">
+                    <div class="generating-prompt">"${escapeHtml(prompt)}"</div>
+                    <div class="gallery-tags" style="margin-top:8px">
+                        <span class="gallery-tag model">${model}</span>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // ─── Render Gallery ─────────────────────────────────────────
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+            document.getElementById('imgCount').textContent = gallery.length;
+
+            showWelcomeOrGallery(gallery.length > 0);
+
+            gallery.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'gallery-item';
+                card.style.animationDelay = (index * 0.05) + 's';
+
+                const presetTag = item.preset ? `<span class="gallery-tag">${escapeHtml(item.preset)}</span>` : '';
+                const ratioTag = item.ratio ? `<span class="gallery-tag">${item.ratio}</span>` : '';
+
+                card.innerHTML = `
+                    <div class="gallery-img-wrap" onclick="openLightbox('${item.id}')">
+                        <img src="${item.src}" alt="${escapeHtml(item.prompt)}" loading="lazy">
+                        <div class="gallery-img-overlay">
+                            <div class="overlay-actions">
+                                <button class="overlay-btn" onclick="event.stopPropagation(); downloadImage('${item.id}')">💾 Save</button>
+                                <button class="overlay-btn" onclick="event.stopPropagation(); copyPrompt('${item.id}')">📋 Copy Prompt</button>
+                                <button class="overlay-btn" onclick="event.stopPropagation(); deleteImage('${item.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gallery-meta">
+                        <div class="gallery-prompt">${escapeHtml(item.prompt)}</div>
+                        <div class="gallery-tags">
+                            <span class="gallery-tag model">${item.model}</span>
+                            ${presetTag}
+                            ${ratioTag}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function showWelcomeOrGallery(showGallery) {
+            document.getElementById('welcomeScreen').style.display = showGallery ? 'none' : 'flex';
+            document.getElementById('galleryGrid').style.display = showGallery ? 'grid' : 'none';
+        }
+
+        // ─── Lightbox ───────────────────────────────────────────────
+        function openLightbox(id) {
+            const item = gallery.find(g => g.id === id);
+            if (!item) return;
+            document.getElementById('lightboxImg').src = item.src;
+            document.getElementById('lightboxPrompt').textContent = item.prompt;
+            document.getElementById('lightboxDownload').onclick = (e) => { e.stopPropagation(); downloadImage(id); };
+            document.getElementById('lightbox').classList.add('active');
+            document.addEventListener('keydown', lightboxKeyHandler);
+        }
+        function closeLightbox(e) {
+            if (e && e.target !== e.currentTarget && !e.target.classList.contains('lightbox-close')) return;
+            document.getElementById('lightbox').classList.remove('active');
+            document.removeEventListener('keydown', lightboxKeyHandler);
+        }
+        function lightboxKeyHandler(e) {
+            if (e.key === 'Escape') closeLightbox();
+        }
+
+        // ─── Actions ────────────────────────────────────────────────
+        function downloadImage(id) {
+            const item = gallery.find(g => g.id === id);
+            if (!item) return;
+            const a = document.createElement('a');
+            a.href = item.src;
+            a.download = `ai-studio-${item.model}-${Date.now()}.png`;
+            a.click();
+            showToast('Image downloaded!');
+        }
+
+        function copyPrompt(id) {
+            const item = gallery.find(g => g.id === id);
+            if (!item) return;
+            navigator.clipboard.writeText(item.prompt).then(() => {
+                showToast('Prompt copied!');
+            });
+        }
+
+        function deleteImage(id) {
+            gallery = gallery.filter(g => g.id !== id);
+            saveGallery();
+            renderGallery();
+            showToast('Image deleted');
+        }
+
+        function clearGallery() {
+            if (gallery.length === 0) return;
+            if (!confirm('Clear all ' + gallery.length + ' images? This cannot be undone.')) return;
+            gallery = [];
+            saveGallery();
+            renderGallery();
+            showToast('Gallery cleared');
+        }
+
+        // ─── Storage ────────────────────────────────────────────────
+        function saveGallery() {
+            try {
+                localStorage.setItem('ai_studio_gallery', JSON.stringify(gallery));
+            } catch (e) {
+                // localStorage full — trim oldest
+                if (gallery.length > 5) {
+                    gallery = gallery.slice(0, 5);
+                    localStorage.setItem('ai_studio_gallery', JSON.stringify(gallery));
+                    showToast('Storage full — oldest images removed', 'error');
+                }
+            }
+        }
+
+        // ─── Util ───────────────────────────────────────────────────
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+
+</html>
