@@ -624,7 +624,8 @@
         .gallery-img-wrap img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
+            background: var(--surface-2);
             transition: transform 0.3s;
         }
 
@@ -951,21 +952,31 @@
                     <div class="custom-select">
                         <select id="modelSelect">
                             <optgroup label="OpenAI">
-                                <option value="dall-e-3" data-provider="openai-image-generation">DALL-E 3</option>
+                                <option value="gpt-image-2" data-provider="openai-image-generation">GPT Image 2
+                                    (New · Reasoning)</option>
+                                <option value="gpt-image-1.5" data-provider="openai-image-generation">GPT Image 1.5
+                                </option>
+                                <option value="gpt-image-1" data-provider="openai-image-generation">GPT Image 1</option>
                                 <option value="gpt-image-1-mini" data-provider="openai-image-generation" selected>GPT
                                     Image Mini (Fast)</option>
-                                <option value="gpt-image-1" data-provider="openai-image-generation">GPT Image 1</option>
-                                <option value="gpt-image-1.5" data-provider="openai-image-generation">GPT Image 1.5
-                                    (Best)</option>
+                                <option value="dall-e-3" data-provider="openai-image-generation">DALL-E 3</option>
                             </optgroup>
                             <optgroup label="Google">
+                                <option value="gemini-3-pro-image-preview" data-provider="gemini">Gemini 3 Pro Image
+                                    (Nano Banana Pro)</option>
                                 <option value="gemini-2.5-flash-image-preview" data-provider="gemini">Gemini 2.5 Flash
-                                </option>
-                                <option value="gemini-3-pro-image-preview" data-provider="gemini">Gemini 3 Pro</option>
+                                    Image (Nano Banana)</option>
                             </optgroup>
-
-
-                            <optgroup label="Together AI">
+                            <optgroup label="FLUX.2 (Black Forest Labs)">
+                                <option value="black-forest-labs/flux-2-pro"
+                                    data-provider="replicate-image-generation">FLUX.2 Pro (New · Best
+                                    Photorealism)</option>
+                                <option value="black-forest-labs/flux.2-flex"
+                                    data-provider="replicate-image-generation">FLUX.2 Flex (New · Customizable)
+                                </option>
+                                <option value="black-forest-labs/flux-2-dev"
+                                    data-provider="replicate-image-generation">FLUX.2 Dev (New · Open Weights)
+                                </option>
                                 <option value="black-forest-labs/FLUX.1-schnell" data-provider="together">FLUX.1 Schnell
                                     (Fast)</option>
                                 <option value="black-forest-labs/FLUX.1.1-pro" data-provider="together">FLUX 1.1 Pro
@@ -1139,7 +1150,6 @@
         function switchTab(tab, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            // Both show gallery for now; history could filter by date
             renderGallery();
         }
 
@@ -1159,6 +1169,91 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // ─── Image Processing: Remove Letterbox ────────────────────
+        async function removeLetterbox(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    const imageData = ctx.getImageData(0, 0, img.width, img.height);
+                    const data = imageData.data;
+                    const threshold = 10;
+                    let top = 0, bottom = img.height, left = 0, right = img.width;
+
+                    // Find top black margin
+                    for (let y = 0; y < img.height; y++) {
+                        let isBlack = true;
+                        for (let x = 0; x < img.width; x++) {
+                            const idx = (y * img.width + x) * 4;
+                            if (data[idx] > threshold || data[idx + 1] > threshold || data[idx + 2] > threshold) {
+                                isBlack = false;
+                                break;
+                            }
+                        }
+                        if (!isBlack) { top = y; break; }
+                    }
+
+                    // Find bottom black margin
+                    for (let y = img.height - 1; y >= 0; y--) {
+                        let isBlack = true;
+                        for (let x = 0; x < img.width; x++) {
+                            const idx = (y * img.width + x) * 4;
+                            if (data[idx] > threshold || data[idx + 1] > threshold || data[idx + 2] > threshold) {
+                                isBlack = false;
+                                break;
+                            }
+                        }
+                        if (!isBlack) { bottom = y + 1; break; }
+                    }
+
+                    // Find left black margin
+                    for (let x = 0; x < img.width; x++) {
+                        let isBlack = true;
+                        for (let y = top; y < bottom; y++) {
+                            const idx = (y * img.width + x) * 4;
+                            if (data[idx] > threshold || data[idx + 1] > threshold || data[idx + 2] > threshold) {
+                                isBlack = false;
+                                break;
+                            }
+                        }
+                        if (!isBlack) { left = x; break; }
+                    }
+
+                    // Find right black margin
+                    for (let x = img.width - 1; x >= 0; x--) {
+                        let isBlack = true;
+                        for (let y = top; y < bottom; y++) {
+                            const idx = (y * img.width + x) * 4;
+                            if (data[idx] > threshold || data[idx + 1] > threshold || data[idx + 2] > threshold) {
+                                isBlack = false;
+                                break;
+                            }
+                        }
+                        if (!isBlack) { right = x + 1; break; }
+                    }
+
+                    // Crop if letterbox detected
+                    if (top > 0 || bottom < img.height || left > 0 || right < img.width) {
+                        const w = right - left, h = bottom - top;
+                        const c = document.createElement('canvas');
+                        const cx = c.getContext('2d');
+                        c.width = w;
+                        c.height = h;
+                        cx.drawImage(img, left, top, w, h, 0, 0, w, h);
+                        resolve(c.toDataURL('image/png'));
+                    } else {
+                        resolve(dataUrl);
+                    }
+                };
+                img.src = dataUrl;
+            });
+        }
+
         // ─── Generate Image ─────────────────────────────────────────
         async function generate() {
             const prompt = document.getElementById('promptInput').value.trim();
@@ -1174,55 +1269,58 @@
             btn.classList.add('loading');
             btn.disabled = true;
 
-            // Build the full prompt with style
             let fullPrompt = prompt;
             if (currentPreset !== 'none') {
                 fullPrompt = prompt + ', ' + currentPreset;
             }
 
-            // Get model and provider
             const modelSelect = document.getElementById('modelSelect');
             const selectedOption = modelSelect.options[modelSelect.selectedIndex];
             const model = modelSelect.value;
             const provider = selectedOption.dataset.provider;
 
-            // Show loading card
             showWelcomeOrGallery(true);
             const loadingCard = createLoadingCard(prompt, model);
             const grid = document.getElementById('galleryGrid');
             grid.insertBefore(loadingCard, grid.firstChild);
 
             try {
-                // Build options based on provider — each has different params per docs
                 const options = { model, provider };
 
                 if (provider === 'openai-image-generation') {
-                    // OpenAI supports ratio + quality
-                    // DALL-E 3 uses 'hd'/'standard', GPT models use 'high'/'medium'/'low'
                     if (model === 'dall-e-3') {
                         options.quality = 'hd';
+                    } else if (model === 'gpt-image-2') {
+                        options.quality = 'high';
                     } else {
                         options.quality = 'medium';
                     }
                     options.ratio = { w: currentRatio.w, h: currentRatio.h };
-                } else if (provider === 'gemini') {
-                    // Gemini supports ratio
-                    options.ratio = { w: currentRatio.w, h: currentRatio.h };
-                } else if (provider === 'xai') {
-                    // xAI/Grok — only prompt and model, no ratio support
-                } else if (provider === 'together') {
-                    // Together uses width/height instead of ratio
                     options.width = currentRatio.w;
                     options.height = currentRatio.h;
+                } else if (provider === 'gemini') {
+                    options.ratio = { w: currentRatio.w, h: currentRatio.h };
+                    options.width = currentRatio.w;
+                    options.height = currentRatio.h;
+                } else if (provider === 'xai') {
+                } else if (provider === 'together') {
+                    options.width = currentRatio.w;
+                    options.height = currentRatio.h;
+                } else if (provider === 'replicate-image-generation') {
+                    options.ratio = { w: currentRatio.w, h: currentRatio.h };
+                    options.width = currentRatio.w;
+                    options.height = currentRatio.h;
+                    if (model.includes('flux-2-pro') || model.includes('flux-2-dev')) {
+                        options.output_quality = 90;
+                    }
                 }
 
-                // Call puter API
-                const imageEl = await puter.ai.txt2img(fullPrompt, options);
+                let imageEl = await puter.ai.txt2img(fullPrompt, options);
+                let imgSrc = imageEl.src;
 
-                // Extract the image src (data URL)
-                const imgSrc = imageEl.src;
+                // Remove letterbox if detected
+                imgSrc = await removeLetterbox(imgSrc);
 
-                // Save to gallery
                 const entry = {
                     id: Date.now() + '_' + Math.random().toString(36).slice(2),
                     src: imgSrc,
@@ -1238,7 +1336,6 @@
                 gallery.unshift(entry);
                 saveGallery();
 
-                // Replace loading card with real image
                 loadingCard.remove();
                 renderGallery();
                 showToast('Image generated!');
@@ -1378,7 +1475,6 @@
             try {
                 localStorage.setItem('ai_studio_gallery', JSON.stringify(gallery));
             } catch (e) {
-                // localStorage full — trim oldest
                 if (gallery.length > 5) {
                     gallery = gallery.slice(0, 5);
                     localStorage.setItem('ai_studio_gallery', JSON.stringify(gallery));
